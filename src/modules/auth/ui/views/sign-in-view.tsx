@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Card, CardContent } from "@/components/ui/card"
 import { z } from "zod"
+import { FaGithub, FaGoogle } from 'react-icons/fa';
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -18,7 +19,7 @@ import {
 } from "@/components/ui/form"
 import { useForm } from "react-hook-form"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next/navigation";
 import { authClient } from '@/lib/auth-client';
 
 
@@ -43,7 +44,7 @@ export const SignInView = () => {
     setPending(true);
     authClient.signIn.email({
       email: data.email,
-      password: data.password
+      password: data.password,
     }, {
       onSuccess: () => {
         setPending(false);
@@ -57,6 +58,24 @@ export const SignInView = () => {
 
 
   }
+  const onSocial = (provider: "github" | "google") => {
+    setError(null);
+    setPending(true);
+    authClient.signIn.social({
+      provider: provider,
+      callbackURL: '/'
+    }, {
+      onSuccess: () => {
+        setPending(false);
+      },
+      onError: ({ error }) => {
+        setPending(false);
+        setError(error.message)
+      },
+    })
+
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
@@ -98,10 +117,10 @@ export const SignInView = () => {
                   <span className="bg-card text-muted-foreground relative z-10 px-2"> Or Continue with</span>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <Button variant={"outline"} type="button" disabled={pending} className="w-full"
-                  >Google</Button>
-                  <Button variant={"outline"} type="button" disabled={pending} className="w-full"
-                  >Github</Button>
+                  <Button variant={"outline"} type="button" disabled={pending} className="w-full" onClick={() => onSocial('google')}
+                  ><FaGoogle /> </Button>
+                  <Button variant={"outline"} type="button" disabled={pending} className="w-full" onClick={() => onSocial('github')}
+                  ><FaGithub /></Button>
 
 
                 </div>
@@ -111,7 +130,7 @@ export const SignInView = () => {
 
             </form>
           </Form>
-          <div className="bg-radial from-green-500 to-green-800 relative hidden md:flex flex-col gap-y-4 items-center justify-center ">
+          <div className="bg-radial from-[#fb9e3a] to-[#E6521F] relative hidden md:flex flex-col gap-y-4 items-center justify-center ">
             <img src="/logo.svg" className="h-[92px] w-[92px]" alt="Logo" />
             <p className="text-2xl font-semibold text-white "> Meet AI</p>
           </div>
@@ -120,6 +139,6 @@ export const SignInView = () => {
       <div className="text-muted-foreground *:[a]:hover:text-primary text-center text-xs text-balance *:[a]:underline *:[a]:underline-offset-4">
         By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
       </div>
-    </div>
+    </div >
   )
 }
